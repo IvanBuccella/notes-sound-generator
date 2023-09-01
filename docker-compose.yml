@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.dev
+    env_file:
+      - ./.env
+    volumes:
+      - "./src:/var/www/html"
+    ports:
+      - "${PORT}:80"
+    restart: on-failure
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
