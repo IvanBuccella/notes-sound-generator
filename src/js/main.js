@@ -14,6 +14,7 @@ const settings = {
   },
 };
 window.api = new alphaTab.AlphaTabApi(main, settings);
+api.masterVolume = 0;
 
 // overlay logic
 const overlay = wrapper.querySelector(".at-overlay");
@@ -159,6 +160,13 @@ api.playerPositionChanged.on((e) => {
 
   songPosition.innerText =
     formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
+});
+
+api.playedBeatChanged.on((args) => {
+    const duration = args.duration;
+    const [note] = args.noteValueLookup.keys();
+
+    console.log("Note: " + note + " - Duration: " + duration);
 });
 
 const inputElement = document.getElementById("input-file");
