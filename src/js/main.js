@@ -8,6 +8,7 @@ const settings = {
   player: {
     enablePlayer: true,
     enableCursor: true,
+    enableUserInteraction: true,
     soundFont: "/dist/soundfont/sonivox.sf2",
     scrollElement: wrapper.querySelector(".at-viewport"),
   },
@@ -164,7 +165,7 @@ api.playedBeatChanged.on((args) => {
   const duration = args.duration;
   const noteValues = Array.from(args.noteValueLookup.keys());
 
-  console.log("Note: " + noteValues + " - Duration: " + duration);
+  console.log("MIDI Note Numbers: " + noteValues + " - Duration: " + duration);
 });
 
 const inputElement = document.getElementById("input-file");
