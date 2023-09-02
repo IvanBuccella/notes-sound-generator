@@ -163,11 +163,27 @@ api.playerPositionChanged.on((e) => {
 });
 
 const beatDescription = wrapper.querySelector(".at-beat-description");
-api.playedBeatChanged.on((args) => {
-  const duration = args.duration;
-  const noteValues = Array.from(args.noteValueLookup.keys());
-  beatDescription.innerText =
-    "MIDI Note Number: " + noteValues + " - Duration: " + duration;
+api.activeBeatsChanged.on((args) => {
+  console.log("----------------");
+  let notes = [];
+  beatDescription.innerText = "";
+  for (let index = 0; index < args.activeBeats.length; index++) {
+    const duration = args.activeBeats[index].duration;
+    const noteValues = Array.from(
+      args.activeBeats[index].noteValueLookup.keys()
+    );
+    for (let i = 0; i < noteValues.length; i++) {
+      notes.push({
+        duration: args.activeBeats[index].duration,
+        midiValue: noteValues[i],
+      });
+      beatDescription.innerText +=
+        " Note: " + noteValues[i] + " - Duration: " + duration;
+
+      if (i != noteValues.length - 1) beatDescription.innerText += " |";
+    }
+  }
+  console.log(notes);
 });
 
 const inputElement = document.getElementById("input-file");
