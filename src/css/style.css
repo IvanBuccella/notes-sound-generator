@@ -36,12 +36,6 @@ body {
   background: #f7f7f7;
 }
 
-.at-sidebar:hover {
-  max-width: 400px;
-  transition: max-width 0.2s;
-  overflow-y: auto;
-}
-
 .at-viewport {
   overflow-y: auto;
   position: absolute;
@@ -134,10 +128,6 @@ body {
 .at-track.active > .at-track-icon {
   color: #4972a1;
   opacity: 1;
-}
-
-.at-track > .at-track-name {
-  font-weight: 500;
 }
 
 /** Footer **/

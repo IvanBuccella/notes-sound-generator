@@ -8,8 +8,7 @@ const settings = {
   player: {
     enablePlayer: true,
     enableCursor: true,
-    soundFont:
-      "https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
+    soundFont: "/dist/soundfont/sonivox.sf2",
     scrollElement: wrapper.querySelector(".at-viewport"),
   },
 };
@@ -30,7 +29,6 @@ function createTrackItem(track) {
   const trackItem = document
     .querySelector("#at-track-template")
     .content.cloneNode(true).firstElementChild;
-  trackItem.querySelector(".at-track-name").innerText = track.name;
   trackItem.track = track;
   trackItem.onclick = (e) => {
     e.stopPropagation();
@@ -163,10 +161,10 @@ api.playerPositionChanged.on((e) => {
 });
 
 api.playedBeatChanged.on((args) => {
-    const duration = args.duration;
-    const [note] = args.noteValueLookup.keys();
+  const duration = args.duration;
+  const noteValues = Array.from(args.noteValueLookup.keys());
 
-    console.log("Note: " + note + " - Duration: " + duration);
+  console.log("Note: " + noteValues + " - Duration: " + duration);
 });
 
 const inputElement = document.getElementById("input-file");
