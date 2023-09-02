@@ -22,16 +22,10 @@ body {
 
 /** Sidebar **/
 .at-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
+  position: relative;
+  height: 100%;
   max-width: 70px;
   width: auto;
-  display: flex;
-  align-content: stretch;
-  z-index: 1001;
-  overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
   background: #f7f7f7;
 }
@@ -220,4 +214,17 @@ body {
   /* Defines the color of the music symbols when they are being played (svg) */
   fill: #0078ff;
   stroke: #0078ff;
+}
+input[type="file"] {
+  display: none;
+}
+.custom-input-file {
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+  justify-content: center;
+  height: 70px;
+  text-align: center;
+  padding: 6px;
+  cursor: pointer;
 }
