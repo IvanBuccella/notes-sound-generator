@@ -162,11 +162,12 @@ api.playerPositionChanged.on((e) => {
     formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
 });
 
+const beatDescription = wrapper.querySelector(".at-beat-description");
 api.playedBeatChanged.on((args) => {
   const duration = args.duration;
   const noteValues = Array.from(args.noteValueLookup.keys());
-
-  console.log("MIDI Note Numbers: " + noteValues + " - Duration: " + duration);
+  beatDescription.innerText =
+    "MIDI Note Number: " + noteValues + " - Duration: " + duration;
 });
 
 const inputElement = document.getElementById("input-file");
