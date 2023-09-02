@@ -172,7 +172,8 @@ api.activeBeatsChanged.on((args) => {
     const noteValues = Array.from(
       args.activeBeats[index].noteValueLookup.keys()
     );
-    for (let i = 0; i < noteValues.length; i++) {
+    let i = 0;
+    for (i = 0; i < noteValues.length; i++) {
       notes.push({
         duration: args.activeBeats[index].duration,
         midiValue: noteValues[i],
@@ -182,6 +183,8 @@ api.activeBeatsChanged.on((args) => {
 
       if (i != noteValues.length - 1) beatDescription.innerText += " |";
     }
+    if (i != noteValues.length - 1 && index != args.activeBeats.length - 1)
+      beatDescription.innerText += " |";
   }
   console.log(notes);
 });
