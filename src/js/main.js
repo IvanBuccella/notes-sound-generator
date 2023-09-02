@@ -30,6 +30,7 @@ function createTrackItem(track) {
   const trackItem = document
     .querySelector("#at-track-template")
     .content.cloneNode(true).firstElementChild;
+  trackItem.querySelector(".at-track-name").innerText = track.name;
   trackItem.track = track;
   trackItem.onclick = (e) => {
     e.stopPropagation();

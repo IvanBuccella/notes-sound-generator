@@ -24,7 +24,7 @@ body {
 .at-sidebar {
   position: relative;
   height: 100%;
-  max-width: 70px;
+  max-width: 120px;
   width: auto;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
   background: #f7f7f7;
@@ -34,7 +34,7 @@ body {
   overflow-y: auto;
   position: absolute;
   top: 0;
-  left: 70px;
+  left: 100px;
   right: 0;
   bottom: 0;
   padding-right: 20px;
@@ -77,11 +77,16 @@ body {
 
 /** Track selector **/
 .at-track {
-  display: flex;
   position: relative;
   padding: 5px;
   transition: background 0.2s;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+  justify-content: center;
+  height: 70px;
 }
 
 .at-track:hover {
@@ -95,14 +100,17 @@ body {
   justify-content: center;
 }
 
+.at-track > .at-track-name {
+  font-weight: 500;
+}
+
 .at-track > .at-track-icon {
   flex-shrink: 0;
   font-size: 32px;
   opacity: 0.5;
   transition: opacity 0.2s;
-  width: 64px;
-  height: 64px;
-  margin-right: 5px;
+  width: 60px;
+  height: 60px;
   align-items: center;
 }
 
