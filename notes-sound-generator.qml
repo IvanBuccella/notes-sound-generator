@@ -2,7 +2,7 @@ import MuseScore 3.0
 
 MuseScore {
     id: notesoundgeneratorscope
-    menuPath: "Plugins.NotesSoundGenerator"
+    menuPath: "Plugins.Open Notes Sound Generator"
     description: "A musescore plugin for blind people - notes sound generator."
     version: "1.0"
     pluginType: "dock"
