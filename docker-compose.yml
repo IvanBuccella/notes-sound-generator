@@ -4,12 +4,10 @@ services:
     build:
       context: ./
       dockerfile: ./docker/Dockerfile.dev
-    env_file:
-      - ./.env
     volumes:
       - "./src:/var/www/html"
     ports:
-      - "${PORT}:80"
+      - "8000:80"
     restart: on-failure
     networks:
       - app
