@@ -152,6 +152,24 @@ function formatDuration(milliseconds) {
 const songPosition = wrapper.querySelector(".at-song-position");
 let previousTime = -1;
 api.playerPositionChanged.on((e) => {
+  const currentTick = e.currentTick - 1;
+  const currentBar =
+    api.score.masterBars[
+      api.score.masterBars
+        .map((el) => el.start <= currentTick)
+        .lastIndexOf(true)
+    ];
+  const startTick = currentBar.start;
+  const endTick = currentBar.nextMasterBar.start;
+  const tickInterval =
+    (endTick - startTick) / currentBar.timeSignatureNumerator;
+  if (currentTick == startTick) {
+    console.log("batti");
+  }
+  if (currentTick == startTick + tickInterval) {
+    console.log("batti");
+  }
+
   // reduce number of UI updates to second changes.
   const currentSeconds = (e.currentTime / 1000) | 0;
   if (currentSeconds == previousTime) {
@@ -164,7 +182,6 @@ api.playerPositionChanged.on((e) => {
 
 const beatDescription = wrapper.querySelector(".at-beat-description");
 api.activeBeatsChanged.on((args) => {
-  console.log("----------------");
   let notes = [];
   beatDescription.innerText = "";
   for (let index = 0; index < args.activeBeats.length; index++) {
@@ -175,8 +192,8 @@ api.activeBeatsChanged.on((args) => {
     let i = 0;
     for (i = 0; i < noteValues.length; i++) {
       notes.push({
-        duration: args.activeBeats[index].duration,
         midiValue: noteValues[i],
+        duration: args.activeBeats[index].duration,
       });
       beatDescription.innerText +=
         " Note: " + noteValues[i] + " - Duration: " + duration;
@@ -186,7 +203,6 @@ api.activeBeatsChanged.on((args) => {
     if (i != noteValues.length - 1 && index != args.activeBeats.length - 1)
       beatDescription.innerText += " |";
   }
-  console.log(notes);
 });
 
 const inputElement = document.getElementById("input-file");
