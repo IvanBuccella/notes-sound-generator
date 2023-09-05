@@ -1,10 +1,12 @@
 // load elements
 const wrapper = document.querySelector(".at-wrap");
 const main = wrapper.querySelector(".at-main");
+const urlParams = new URLSearchParams(window.location.search);
+const urlFileName = urlParams.get("filename");
 
 // initialize alphatab
 const settings = {
-  file: "/file.xml",
+  file: urlFileName ?? "/file.xml",
   player: {
     enablePlayer: true,
     enableCursor: true,
@@ -18,6 +20,9 @@ let currentTimeSignatureType = -1;
 api.masterVolume = 0;
 
 const inputElement = document.getElementById("input-file");
+if (urlFileName) {
+  document.getElementById("custom-input-file").style.display = "none";
+}
 inputElement.addEventListener("change", onUploadedFile, false);
 function onUploadedFile() {
   const file = this.files[0];
