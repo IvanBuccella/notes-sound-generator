@@ -8,15 +8,12 @@ case "$OSTYPE" in
   *)        machine=unknown;;
 esac
 
-print $machine
-
 if [ ! $machine == "OSX" ]; then
     echo "You are not using OSX"
     exit 1
 fi
 
-Application="/Applications/MuseScore 3.app"
-if [ ! -d $Application ]; then
+if [ ! -d "/Applications/MuseScore 3.app" ]; then
     echo "MuseScore 3 is not installed"
     exit 1
 fi
