@@ -30,6 +30,18 @@ body {
   background: #f7f7f7;
 }
 
+.at-sidebar .at-metronome {
+  position: relative;
+  padding: 5px;
+  text-align: center;
+  margin-top: 25px;
+}
+
+.at-sidebar .at-metronome i {
+  font-size: 30px;
+  display: none;
+}
+
 .at-viewport {
   overflow-y: auto;
   position: absolute;

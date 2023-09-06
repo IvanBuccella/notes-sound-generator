@@ -16,6 +16,8 @@ const settings = {
   },
 };
 let api = new alphaTab.AlphaTabApi(main, settings);
+let timeSignaturePauses = [];
+let metronomeWorker = null;
 api.masterVolume = 0;
 
 const inputElement = document.getElementById("input-file");
@@ -56,6 +58,38 @@ function createTrackItem(track) {
   return trackItem;
 }
 
+function createMetronome(score) {
+  let tempoAutomation = 0;
+  score.masterBars.forEach((bar) => {
+    if (
+      bar.tempoAutomation != null &&
+      tempoAutomation != bar.tempoAutomation.value
+    ) {
+      tempoAutomation = bar.tempoAutomation.value;
+    }
+    let barDuration = parseFloat(60 / parseInt(tempoAutomation));
+    if (parseInt(bar.timeSignatureNumerator) == 0) return;
+    let beatsWaitTime = barDuration / parseInt(bar.timeSignatureNumerator);
+    for (
+      let index = 1;
+      index <= parseInt(bar.timeSignatureNumerator);
+      index++
+    ) {
+      if (index == 1) {
+        timeSignaturePauses.push({
+          waitTime: beatsWaitTime,
+          isFirstBeat: true,
+        });
+      } else {
+        timeSignaturePauses.push({
+          waitTime: beatsWaitTime,
+          isFirstBeat: false,
+        });
+      }
+    }
+  });
+}
+
 const trackList = wrapper.querySelector(".at-track-list");
 api.scoreLoaded.on((score) => {
   // clear items
@@ -64,6 +98,7 @@ api.scoreLoaded.on((score) => {
   score.tracks.forEach((track) => {
     trackList.appendChild(createTrackItem(track));
   });
+  createMetronome(score);
 });
 api.renderStarted.on(() => {
   // collect tracks being rendered
@@ -127,6 +162,24 @@ api.playerReady.on(() => {
 });
 
 // main player controls
+function getCurrentBarIndex(currentTick) {
+  return api.score.masterBars
+    .map((el) => el.start <= currentTick)
+    .lastIndexOf(true);
+}
+const beatSignaler = document.getElementById("beat-signaler");
+function highlightBeat(color) {
+  beatSignaler.style.color = color;
+  beatSignaler.style.display = "block";
+  if (color == "green") {
+    beatSignaler.style.marginTop = "50px";
+  } else {
+    beatSignaler.style.marginTop = 0;
+  }
+  setTimeout(function () {
+    beatSignaler.style.display = "none";
+  }, 100);
+}
 const playPause = wrapper.querySelector(".at-controls .at-player-play-pause");
 const stop = wrapper.querySelector(".at-controls .at-player-stop");
 playPause.onclick = (e) => {
@@ -134,15 +187,27 @@ playPause.onclick = (e) => {
     return;
   }
   if (e.target.classList.contains("fa-play")) {
+    let currentBarIndex = getCurrentBarIndex(api.tickPosition);
+    api.tickPosition = api.score.masterBars[currentBarIndex].start;
+    metronomeWorker = new Worker("/js/metronomeWorker.js");
+    metronomeWorker.onmessage = function (message) {
+      highlightBeat(message.data);
+    };
+    metronomeWorker.postMessage({
+      startIndex: currentBarIndex,
+      pauses: timeSignaturePauses,
+    });
     api.playPause();
   } else if (e.target.classList.contains("fa-pause")) {
     api.playPause();
+    metronomeWorker.terminate();
   }
 };
 stop.onclick = (e) => {
   if (e.target.classList.contains("disabled")) {
     return;
   }
+  metronomeWorker.terminate();
   api.stop();
 };
 api.playerReady.on(() => {
