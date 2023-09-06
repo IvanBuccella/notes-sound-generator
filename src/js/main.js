@@ -16,7 +16,6 @@ const settings = {
   },
 };
 let api = new alphaTab.AlphaTabApi(main, settings);
-let currentTimeSignatureType = -1;
 api.masterVolume = 0;
 
 const inputElement = document.getElementById("input-file");
@@ -135,10 +134,7 @@ playPause.onclick = (e) => {
     return;
   }
   if (e.target.classList.contains("fa-play")) {
-    console.log("The time signature is: " + currentTimeSignatureType);
-    setTimeout(function () {
-      api.playPause();
-    }, 500);
+    api.playPause();
   } else if (e.target.classList.contains("fa-pause")) {
     api.playPause();
   }
