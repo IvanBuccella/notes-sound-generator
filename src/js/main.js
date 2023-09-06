@@ -34,43 +34,6 @@ function onUploadedFile() {
   reader.readAsArrayBuffer(file);
 }
 
-function getStartTimeSignatureType() {
-  let timeSignatureType = getTimeSignatureType(
-    api.score.masterBars[0].timeSignatureNumerator,
-    api.score.masterBars[0].timeSignatureDenominator
-  );
-  if (currentTimeSignatureType == timeSignatureType) return;
-  currentTimeSignatureType = timeSignatureType;
-}
-
-function getTimeSignatureType(numerator, denominator) {
-  /*
-    1. 2/4: Two quarter-note beats per measure.
-    2. 3/4: Three quarter-note beats per measure.
-    3. 4/4: Four quarter-note beats per measure. Also known as common time and notated with a “C.”
-    4. 2/2: Two half-note beats per measure. Also known as cut time is notated as a “C” with a vertical slash through it.
-    5. 6/8: Six eighth-note beats per measure
-    6. 9/8: Nine eighth-note beats per measure
-    7. 12/8: Twelve eighth-note beats per measure
-  */
-  if (numerator == 2 && denominator == 4) {
-    return 1;
-  } else if (numerator == 3 && denominator == 4) {
-    return 2;
-  } else if (numerator == 4 && denominator == 4) {
-    return 3;
-  } else if (numerator == 2 && denominator == 2) {
-    return 4;
-  } else if (numerator == 6 && denominator == 8) {
-    return 5;
-  } else if (numerator == 9 && denominator == 8) {
-    return 6;
-  } else if (numerator == 12 && denominator == 8) {
-    return 7;
-  }
-  return -1;
-}
-
 // overlay logic
 const overlay = wrapper.querySelector(".at-overlay");
 api.renderStarted.on(() => {
@@ -124,8 +87,6 @@ api.renderStarted.on(() => {
 api.scoreLoaded.on((score) => {
   wrapper.querySelector(".at-song-title").innerText = score.title;
   wrapper.querySelector(".at-song-artist").innerText = score.artist;
-
-  getStartTimeSignatureType();
 });
 
 wrapper.querySelector(".at-controls .at-print").onclick = () => {
@@ -187,7 +148,6 @@ stop.onclick = (e) => {
     return;
   }
   api.stop();
-  getStartTimeSignatureType();
 };
 api.playerReady.on(() => {
   playPause.classList.remove("disabled");
@@ -250,20 +210,4 @@ api.activeBeatsChanged.on((args) => {
     if (i != noteValues.length - 1 && index != args.activeBeats.length - 1)
       beatDescription.innerText += " |";
   }
-
-  if (args.activeBeats[0] == undefined) return;
-  if (args.activeBeats[0].previousBeat == undefined) return;
-  const currBarId = args.activeBeats[0].voice.bar.index;
-  const nextBarId = args.activeBeats[0].nextBeat.voice.bar.index;
-  if (currBarId == nextBarId) return; //It is not the last note of the bar
-  if (currBarId == undefined) return;
-  const masterBar = api.score.masterBars.find((el) => el.index == currBarId);
-  if (masterBar == undefined || masterBar.nextMasterBar == undefined) return;
-  let timeSignatureType = getTimeSignatureType(
-    masterBar.nextMasterBar.timeSignatureNumerator,
-    masterBar.nextMasterBar.timeSignatureDenominator
-  );
-  if (currentTimeSignatureType == timeSignatureType) return;
-  currentTimeSignatureType = timeSignatureType;
-  console.log("The new time signature is: " + timeSignatureType);
 });
