@@ -14,14 +14,14 @@ MuseScore {
 
     function openGenerator(filePath, filename) {
         var newFilePath = filePath + "/src/" + filename;
-        writeScore(curScore, newFilePath, "xml");
-        return newFilePath;
+        if (writeScore(curScore, newFilePath, "xml")) {
+            Qt.openUrlExternally("http://localhost:8000?filename="+filename);
+        }
     }
 
     onRun: {
         var filename = "new-exported.xml";
-        var newFilePath = openGenerator(filePath, filename);
-        Qt.openUrlExternally("http://localhost:8000?filename="+filename); 
+        openGenerator(filePath, filename);
         Qt.quit();
     }
 }
