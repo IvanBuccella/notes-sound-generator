@@ -68,7 +68,8 @@ function createMetronome(score) {
       tempoAutomation = bar.tempoAutomation.value;
     }
     let barDuration =
-      parseFloat(60 / parseInt(tempoAutomation)) * bar.timeSignatureNumerator;
+      parseFloat(60 / parseInt(tempoAutomation)) *
+      parseInt(bar.timeSignatureNumerator);
     if (parseInt(bar.timeSignatureNumerator) == 0) return;
     let beatsWaitTime = barDuration / parseInt(bar.timeSignatureNumerator);
     for (
