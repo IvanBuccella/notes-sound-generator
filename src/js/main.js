@@ -170,14 +170,10 @@ function getCurrentBarIndex(currentTick) {
     .lastIndexOf(true);
 }
 const beatSignaler = document.getElementById("beat-signaler");
+const beatLogger = document.getElementById("beat-logger");
 function highlightBeat(color) {
   beatSignaler.style.color = color;
   beatSignaler.style.display = "block";
-  if (color == "green") {
-    beatSignaler.style.marginTop = "50px";
-  } else {
-    beatSignaler.style.marginTop = 0;
-  }
   setTimeout(function () {
     beatSignaler.style.display = "none";
   }, 100);
@@ -192,8 +188,16 @@ playPause.onclick = (e) => {
     let currentBarIndex = getCurrentBarIndex(api.tickPosition);
     api.tickPosition = api.score.masterBars[currentBarIndex].start;
     metronomeWorker = new Worker("/js/metronomeWorker.js");
+    beatLogger.innerHTML = "";
     metronomeWorker.onmessage = function (message) {
-      highlightBeat(message.data);
+      if (message.data.isFirstBeat) {
+        beatLogger.innerHTML = '<p style="color: green;">BEAT</p>';
+        highlightBeat("green");
+      } else {
+        beatLogger.innerHTML += '<p style="color: red;">BEAT</p>';
+        highlightBeat("red");
+      }
+      beatLogger.scrollTo(0, beatLogger.scrollHeight);
     };
     metronomeWorker.postMessage({
       startIndex: currentBarIndex,
@@ -210,6 +214,7 @@ stop.onclick = (e) => {
     return;
   }
   metronomeWorker.terminate();
+  beatLogger.innerHTML = "";
   api.stop();
 };
 api.playerReady.on(() => {

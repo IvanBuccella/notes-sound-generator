@@ -9,11 +9,7 @@
     let startIndex = message.data.startIndex;
     for (let index = startIndex; index < timeSignaturePauses.length; index++) {
       const element = timeSignaturePauses[index];
-      if (element.isFirstBeat) {
-        self.postMessage("green");
-      } else {
-        self.postMessage("red");
-      }
+      self.postMessage(element);
       sleep(element.waitTime * 1000);
     }
   };
