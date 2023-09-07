@@ -171,6 +171,7 @@ function getCurrentBarIndex(currentTick) {
 }
 const beatSignaler = document.getElementById("beat-signaler");
 const beatLogger = document.getElementById("beat-logger");
+const noteLogger = document.getElementById("note-logger");
 function highlightBeat(color) {
   beatSignaler.style.color = color;
   beatSignaler.style.display = "block";
@@ -206,6 +207,8 @@ playPause.onclick = (e) => {
     api.playPause();
   } else if (e.target.classList.contains("fa-pause")) {
     api.playPause();
+    noteLogger.innerHTML = "";
+    beatLogger.innerHTML = "";
     metronomeWorker.terminate();
   }
 };
@@ -214,6 +217,7 @@ stop.onclick = (e) => {
     return;
   }
   metronomeWorker.terminate();
+  noteLogger.innerHTML = "";
   beatLogger.innerHTML = "";
   api.stop();
 };
@@ -255,10 +259,8 @@ api.playerPositionChanged.on((e) => {
     formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
 });
 
-const beatDescription = wrapper.querySelector(".at-beat-description");
 api.activeBeatsChanged.on((args) => {
-  let notes = [];
-  beatDescription.innerText = "";
+  noteLogger.innerHTML = "";
   for (let index = 0; index < args.activeBeats.length; index++) {
     const duration = args.activeBeats[index].duration;
     const noteValues = Array.from(
@@ -266,16 +268,9 @@ api.activeBeatsChanged.on((args) => {
     );
     let i = 0;
     for (i = 0; i < noteValues.length; i++) {
-      notes.push({
-        midiValue: noteValues[i],
-        duration: args.activeBeats[index].duration,
-      });
-      beatDescription.innerText +=
-        " Note: " + noteValues[i] + " - Duration: " + duration;
-
-      if (i != noteValues.length - 1) beatDescription.innerText += " |";
+      noteLogger.innerHTML +=
+        "<p>Note " + noteValues[i] + " (" + duration + ")</p>";
     }
-    if (i != noteValues.length - 1 && index != args.activeBeats.length - 1)
-      beatDescription.innerText += " |";
+    noteLogger.scrollTo(0, noteLogger.scrollHeight);
   }
 });
