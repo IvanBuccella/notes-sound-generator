@@ -27,6 +27,7 @@ MuseScore {
             return;
         }
         Qt.openUrlExternally("http://localhost:8000?filename="+filename);
+        Qt.quit();
     }
 
     onRun: {
