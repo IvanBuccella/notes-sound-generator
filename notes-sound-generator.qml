@@ -9,10 +9,6 @@ MuseScore {
     pluginType: "dock"
     anchors.fill: parent
 
-    QProcess {
-        id: process
-    }
-
     MessageDialog {
 		id: alert;
 		title: "";
