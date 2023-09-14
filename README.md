@@ -47,6 +47,8 @@ onRun: {
 
 #### Library initialization
 
+The library is initialized by setting the `master volume` to zero in order to avoid the sound playing of the score, and the `file` parameter is set to the URL param of the page if it is specified. This parameter will be set from the [MuseScore](https://musescore.org) plugin with the filename of the file exported from itself.
+
 ```js
 const urlParams = new URLSearchParams(window.location.search);
 const urlFileName = urlParams.get("filename");
@@ -66,6 +68,8 @@ api.masterVolume = 0;
 
 #### The `scoreLoaded` event
 
+This event is fired every time a score is loaded. When it's fired, the `createMetronome` function is called which is responsible for building the `timeSignaturePauses` array that is used to play the time signature `beats`.
+
 ```js
 api.scoreLoaded.on((score) => {
   trackList.innerHTML = "";
@@ -77,6 +81,8 @@ api.scoreLoaded.on((score) => {
 ```
 
 #### The `createMetronome` function
+
+This function creates the `timeSignaturePauses` array which is used to play the time signature `beats`. It iterates over the score's bars and calculates the `wait time after a beat` is played, by using the `tempoAutomation` value of a bar. The function also determines if the beat is the first beat in the bar.
 
 ```js
 function createMetronome(score) {
@@ -116,6 +122,12 @@ function createMetronome(score) {
 
 #### The `play/pause` event
 
+This event is fired every time the user clicks on the `play` or `pause` buttons.
+
+When the `play` is fired, a new `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) is started which is responsible for sending the `beat` to be played and waiting for the `pause` time indicated in the `timeSignaturePauses` array. The playing of a beat is fired through the `metronomeWorker.onmessage` callback and the `timeSignaturePauses` array is sent to the [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) via the `metronomeWorker.postMessage` function.
+
+When the `pause` is fired, the previously `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) started, is terminated.
+
 ```js
 playPause.onclick = (e) => {
   if (e.target.classList.contains("disabled")) {
@@ -150,9 +162,35 @@ playPause.onclick = (e) => {
 };
 ```
 
-#### The `activeBeatsChanged` event
+#### The `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
+
+Every time that the worker is launched, it iterates over the `timeSignaturePauses` array by sending the `beat` message and then waiting for the `waitTime` specified in the current element, until the array is entirely consumer or the [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) is terminated.
 
 ```js
+{
+  function sleep(delay) {
+    var start = new Date().getTime();
+    while (new Date().getTime() < start + delay);
+  }
+
+  self.onmessage = function (message) {
+    let timeSignaturePauses = message.data.pauses;
+    let startIndex = message.data.startIndex;
+    for (let index = startIndex; index < timeSignaturePauses.length; index++) {
+      const element = timeSignaturePauses[index];
+      self.postMessage(element);
+      sleep(element.waitTime * 1000);
+    }
+  };
+}
+```
+
+#### The `activeBeatsChanged` event
+
+This event is fired every time a note (or a group of notes) in the score is played. When it's fired, the DOM element `noteLogger` content is replaced with the description of the current notes played; the notes are extracted from the `activeBeats` variable in the `args` parameter.
+
+```js
+const noteLogger = document.getElementById("note-logger");
 api.activeBeatsChanged.on((args) => {
   noteLogger.innerHTML = "";
   for (let index = 0; index < args.activeBeats.length; index++) {
