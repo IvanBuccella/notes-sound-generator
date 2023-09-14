@@ -25,6 +25,8 @@ The `current played notes` are communicated by descriptive text which indicates 
 
 A `partial` portion of the `plugin` code is shown below; it emphasizes its behavior.
 
+When the plugin is run, it `saves` the current `score` in a MusicXML file named `'new-exported.xml'` in the `same folder` of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance, and then opens a new `web browser page` with the URL of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance by specifying the parameter `filename`.
+
 ```js
 function openGenerator(filePath, filename) {
   var newFilePath = filePath + "/src/" + filename;
