@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Blind people are unable to concurrently "read and play" the score, but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on smartwatches using the vibration functionality.
+Blind people are unable to concurrently "read and play" the score but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on smartwatches using the vibration functionality.
 
 `Notes Sound Generator` is a [MuseScore 3.x](https://musescore.org) plugin for blind people; it is capable of reading the current score (which can be edited with [MuseScore](https://musescore.org) itself) and extracting, at playing time, the notes and the time signature of the score.
 
-My solution is thorough docker containerization and web solutions, including the [Alphatab](https://alphatab.net/) JS library and its own low-level APIs, to extract the notes and the time signature from a score. The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able to play the score and, exploiting the low-level APIs of the library, play the time beats and the currently played notes on smartwatches.
+My solution is thorough docker containerization and web solutions, including the [Alphatab](https://alphatab.net/) JS library and its own low-level APIs, to extract the notes and the time signature from a score. The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able to play the score and, exploiting the low-level APIs of the library, vibrate on smartwatches the time beats and the currently played notes.
 
 ## Implementation details
 
