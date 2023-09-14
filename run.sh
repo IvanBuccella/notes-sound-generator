@@ -19,4 +19,13 @@ if [ ! -d "/Applications/MuseScore 3.app" ]; then
 fi
 
 docker-compose up -d --build
+if [ ! $? -eq 0 ]; then
+    echo "The docker compose command has failed"
+    exit 1
+fi
+
 open -a "MuseScore 3"
+if [ ! $? -eq 0 ]; then
+    echo "Cannot start MuseScore 3"
+    exit 1
+fi
