@@ -1,4 +1,5 @@
 import MuseScore 3.0
+import QtQuick.Dialogs 1.2
 
 MuseScore {
     id: notesoundgeneratorscope
@@ -12,16 +13,24 @@ MuseScore {
         id: process
     }
 
+    MessageDialog {
+		id: alert;
+		title: "";
+		icon: StandardIcon.Information;
+	}
+
     function openGenerator(filePath, filename) {
         var newFilePath = filePath + "/src/" + filename;
-        if (writeScore(curScore, newFilePath, "xml")) {
-            Qt.openUrlExternally("http://localhost:8000?filename="+filename);
+        if (!writeScore(curScore, newFilePath, "xml")) {
+            alert.text = "Cannot export the current score, try again.";
+            alert.open();
+            return;
         }
+        Qt.openUrlExternally("http://localhost:8000?filename="+filename);
     }
 
     onRun: {
         var filename = "new-exported.xml";
         openGenerator(filePath, filename);
-        Qt.quit();
     }
 }
