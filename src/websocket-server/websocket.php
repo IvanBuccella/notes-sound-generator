@@ -9,31 +9,51 @@ use Ratchet\WebSocket\WsServer;
 
 class WebSocketServer implements MessageComponentInterface
 {
-    protected $clients;
+    protected $timeClients;
+    protected $notesClients;
 
     public function __construct()
     {
-        $this->clients = new \SplObjectStorage();
+        $this->timeClients  = new \SplObjectStorage();
+        $this->notesClients = new \SplObjectStorage();
     }
 
     public function onOpen(ConnectionInterface $conn)
     {
-        $this->clients->attach($conn);
-        echo "New connection: {$conn->resourceId}\n";
+        $request = $conn->httpRequest;
+        if ($request->getUri()->getPath() === '/time') {
+            $this->timeClients->attach($conn);
+            echo "New connection to time channel: {$conn->resourceId}\n";
+        }
+        if ($request->getUri()->getPath() === '/notes') {
+            $this->notesClients->attach($conn);
+            echo "New connection to notes channel: {$conn->resourceId}\n";
+        }
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        foreach ($this->clients as $client) {
-            if ($from !== $client) {
-                $client->send($msg);
+        $request = $from->httpRequest;
+        if ($request->getUri()->getPath() === '/time') {
+            foreach ($this->timeClients as $client) {
+                if ($from !== $client) {
+                    $client->send($msg);
+                }
+            }
+        }
+        if ($request->getUri()->getPath() === '/notes') {
+            foreach ($this->notesClients as $client) {
+                if ($from !== $client) {
+                    $client->send($msg);
+                }
             }
         }
     }
 
     public function onClose(ConnectionInterface $conn)
     {
-        $this->clients->detach($conn);
+        $this->timeClients->detach($conn);
+        $this->notesClients->detach($conn);
         echo "Connection {$conn->resourceId} closed\n";
     }
 

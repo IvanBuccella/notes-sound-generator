@@ -9,11 +9,12 @@ if (!"WebSocket" in window) {
     "WebSocket is NOT supported by your Browser so you cannot use external devices!"
   );
 }
-var webSocket = new WebSocket("ws://localhost:8080");
-webSocket.onopen = function () {
-  alert("Connection to external devices is set up!");
+var timeWebSocket = new WebSocket("ws://localhost:8080/time");
+var notesWebSocket = new WebSocket("ws://localhost:8080/notes");
+timeWebSocket.onclose = function () {
+  alert("Can't connect to external devices!");
 };
-webSocket.onclose = function () {
+notesWebSocket.onclose = function () {
   alert("Can't connect to external devices!");
 };
 
@@ -208,7 +209,7 @@ playPause.onclick = (e) => {
       pauses: timeSignaturePauses,
     });
     metronomeWorker.onmessage = function (message) {
-      if (webSocket.readyState != 1) return;
+      if (timeWebSocket.readyState != 1) return;
       if (message.data.isFirstBeat) {
         beatLogger.innerHTML = '<p style="color: green;">BEAT</p>';
         highlightBeat("green");
@@ -216,8 +217,8 @@ playPause.onclick = (e) => {
         beatLogger.innerHTML += '<p style="color: red;">BEAT</p>';
         highlightBeat("red");
       }
-      webSocket.send(
-        JSON.stringify({ type: 0, isFirstBeat: message.data.isFirstBeat })
+      timeWebSocket.send(
+        JSON.stringify({ isFirstBeat: message.data.isFirstBeat })
       );
       beatLogger.scrollTo(0, beatLogger.scrollHeight);
     };
@@ -294,5 +295,6 @@ api.activeBeatsChanged.on((args) => {
     }
     noteLogger.scrollTo(0, noteLogger.scrollHeight);
   }
-  webSocket.send(JSON.stringify({ type: 1, data: noteLogger.innerHTML }));
+  if (notesWebSocket.readyState != 1) return;
+  notesWebSocket.send(JSON.stringify({ data: noteLogger.innerHTML }));
 });
