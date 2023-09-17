@@ -216,7 +216,9 @@ playPause.onclick = (e) => {
         beatLogger.innerHTML += '<p style="color: red;">BEAT</p>';
         highlightBeat("red");
       }
-      webSocket.send(message.data.isFirstBeat);
+      webSocket.send(
+        JSON.stringify({ type: 0, isFirstBeat: message.data.isFirstBeat })
+      );
       beatLogger.scrollTo(0, beatLogger.scrollHeight);
     };
     api.playPause();
@@ -284,8 +286,13 @@ api.activeBeatsChanged.on((args) => {
     let i = 0;
     for (i = 0; i < noteValues.length; i++) {
       noteLogger.innerHTML +=
-        "<p>Note " + noteValues[i] + " (" + duration + ")</p>";
+        '<p style="text-align: center;">Note ' +
+        noteValues[i] +
+        " (" +
+        duration +
+        ")</p>";
     }
     noteLogger.scrollTo(0, noteLogger.scrollHeight);
   }
+  webSocket.send(JSON.stringify({ type: 1, data: noteLogger.innerHTML }));
 });
