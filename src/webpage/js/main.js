@@ -4,6 +4,19 @@ const main = wrapper.querySelector(".at-main");
 const urlParams = new URLSearchParams(window.location.search);
 const urlFileName = urlParams.get("filename");
 
+if (!"WebSocket" in window) {
+  alert(
+    "WebSocket is NOT supported by your Browser so you cannot use external devices!"
+  );
+}
+var webSocket = new WebSocket("ws://localhost:8080");
+webSocket.onopen = function () {
+  alert("Connection to external devices is set up!");
+};
+webSocket.onclose = function () {
+  alert("Can't connect to external devices!");
+};
+
 // initialize alphatab
 const settings = {
   file: urlFileName ?? "/file.xml",
@@ -190,7 +203,12 @@ playPause.onclick = (e) => {
     api.tickPosition = api.score.masterBars[currentBarIndex].start;
     metronomeWorker = new Worker("/js/metronomeWorker.js");
     beatLogger.innerHTML = "";
+    metronomeWorker.postMessage({
+      startIndex: currentBarIndex,
+      pauses: timeSignaturePauses,
+    });
     metronomeWorker.onmessage = function (message) {
+      if (webSocket.readyState != 1) return;
       if (message.data.isFirstBeat) {
         beatLogger.innerHTML = '<p style="color: green;">BEAT</p>';
         highlightBeat("green");
@@ -198,12 +216,9 @@ playPause.onclick = (e) => {
         beatLogger.innerHTML += '<p style="color: red;">BEAT</p>';
         highlightBeat("red");
       }
+      webSocket.send(message.data.isFirstBeat);
       beatLogger.scrollTo(0, beatLogger.scrollHeight);
     };
-    metronomeWorker.postMessage({
-      startIndex: currentBarIndex,
-      pauses: timeSignaturePauses,
-    });
     api.playPause();
   } else if (e.target.classList.contains("fa-pause")) {
     api.playPause();

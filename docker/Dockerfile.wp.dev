@@ -1,0 +1,3 @@
+FROM ubuntu/apache2:latest
+
+COPY ./src/webpage /var/www/html

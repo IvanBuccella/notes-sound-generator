@@ -1,0 +1,11 @@
+FROM php:8-fpm
+
+RUN apt-get update && apt-get install git unzip -y
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+COPY ./src/websocket-server /var/www/html
+
+RUN composer install
+
+CMD [ "php" , "websocket.php" ]
