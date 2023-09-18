@@ -42,7 +42,6 @@ class _WebSocketScreenState extends State<WebSocketScreen> {
   @override
   Widget build(BuildContext context) {
     List<bool> beats = [];
-    String notes = "";
 
     return Scaffold(
       appBar: AppBar(

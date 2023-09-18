@@ -1,4 +1,4 @@
-package com.example.mobile_app
+package me.buccella.nsg
 
 import io.flutter.embedding.android.FlutterActivity
 
