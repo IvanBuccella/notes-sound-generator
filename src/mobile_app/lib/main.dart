@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:vibration/vibration.dart';
 
 void main() => runApp(const MyApp());
 
@@ -58,7 +58,7 @@ class _WebSocketScreenState extends State<WebSocketScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               final message = jsonDecode(snapshot.data);
-              Vibration.vibrate();
+              HapticFeedback.heavyImpact();
               if (message["isFirstBeat"]) beats = [];
               beats.add(message["isFirstBeat"]);
               return Expanded(

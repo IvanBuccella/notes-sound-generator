@@ -295,7 +295,7 @@ StreamBuilder(
       return const Center(child: CircularProgressIndicator());
     }
     final message = jsonDecode(snapshot.data);
-    Vibration.vibrate();
+    HapticFeedback.heavyImpact();
     if (message["isFirstBeat"]) beats = [];
     beats.add(message["isFirstBeat"]);
     return Expanded(
