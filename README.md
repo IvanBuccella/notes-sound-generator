@@ -2,13 +2,13 @@
 
 ## Introduction
 
-Blind people are unable to concurrently "read and play" the score but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on smartphones using the vibration functionality.
+Blind people are unable to concurrently "read and play" the score but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on mobile devices using the vibration functionality.
 
 `Notes Sound Generator` is a [MuseScore 3.x](https://musescore.org) plugin for blind people; it is capable of reading the current score (which can be edited with [MuseScore](https://musescore.org) itself) and extracting, at playing time, the notes and the time signature of the score.
 
 My solution uses the MuseScore plugin development stack, the [Alphatab](https://alphatab.net/) JS library to extract the notes and the time signature from a score, and the JavaScript [WebSocket](https://it.javascript.info/websocket) protocol to send data to mobile devices.
 
-The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able, exploiting the low-level APIs of the library, to play the score and vibrate on smartphones the time beats and the currently played notes.
+The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able, exploiting the low-level APIs of the library, to play the score and vibrate on mobile devices the time beats and the currently played notes.
 
 ## Implementation details
 
@@ -285,7 +285,7 @@ final notesChannel = IOWebSocketChannel.connect('ws://YOUR_LOCAL_MACHINE_IP:8080
 
 In the `build` method of the main widget, a new `StreamBuilder` is created for the `timeChannel` connection; the `StreamBuilder` widget executes the `builder` function instructions when receiving a `new message` on the WebSocket.
 
-It vibrates the smartphone and prints on the screen the beats, using a `ListView` starting from the `beats` elements `List`, which is emptied when the first beat of the bar has been received.
+It vibrates the mobile device and prints on the screen the beats, using a `ListView` starting from the `beats` elements `List`, which is emptied when the first beat of the bar has been received.
 
 ```dart
 StreamBuilder(
