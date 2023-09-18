@@ -51,7 +51,7 @@ onRun: {
 #### Library initialization
 
 The library is initialized by setting the `master volume` to zero in order to avoid the sound playing of the score, and the `file` parameter is set to the URL param of the page if it is specified. This parameter will be set from the [MuseScore](https://musescore.org) plugin with the filename of the file exported from itself.
-Two websockets are opened in order to send the beat and notes infos to the mobile devices.
+Two WebSockets are opened in order to send the beat and notes infos to the mobile devices.
 
 ```js
 var timeWebSocket = new WebSocket("ws://localhost:8080/time");
@@ -228,6 +228,8 @@ api.activeBeatsChanged.on((args) => {
 
 #### The `onOpen` function
 
+Every time a `new client` opens the connection to the WebSocket, the server attaches the connection to the respective clients' `array` identified by the connection `path` specified.
+
 ```php
 public function onOpen(ConnectionInterface $conn)
 {
@@ -244,6 +246,8 @@ public function onOpen(ConnectionInterface $conn)
 ```
 
 #### The `onMessage` function
+
+Every time a `client` sends a message to the WebSocket server, it broadcasts the message to the other clients connected to the same channel identified by the connection `path` specified.
 
 ```php
 public function onMessage(ConnectionInterface $from, $msg)
@@ -266,9 +270,82 @@ public function onMessage(ConnectionInterface $from, $msg)
 }
 ```
 
+### Mobile App side
+
+#### The connections to WebSocket
+
+On app `startup`, the WebSocket connections are created.
+
+```dart
+final timeChannel = IOWebSocketChannel.connect('ws://YOUR_LOCAL_MACHINE_IP:8080/time');
+final notesChannel = IOWebSocketChannel.connect('ws://YOUR_LOCAL_MACHINE_IP:8080/notes');
+```
+
+#### The timeChannel StreamBuilder
+
+In the `build` method of the main widget, a new `StreamBuilder` is created for the `timeChannel` connection; the `StreamBuilder` widget executes the `builder` function instructions when receiving a `new message` on the WebSocket.
+
+It vibrates the smartphone and prints on the screen the beats, using a `ListView` starting from the `beats` elements `List`, which is emptied when the first beat of the bar has been received.
+
+```dart
+StreamBuilder(
+  stream: timeChannel.stream,
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final message = jsonDecode(snapshot.data);
+    Vibration.vibrate();
+    if (message["isFirstBeat"]) beats = [];
+    beats.add(message["isFirstBeat"]);
+    return Expanded(
+      flex: 1,
+      child: Align(
+        alignment: Alignment.center,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            return Center(
+              child: Icon(
+                Icons.circle,
+                size: 30,
+                color: beats[index] ? Colors.green : Colors.red,
+              ),
+            );
+          },
+          itemCount: beats.length,
+        ),
+      ),
+    );
+  },
+)
+```
+
+#### The notesChannel StreamBuilder
+
+In the `build` method of the main widget, a new `StreamBuilder` is created for the `notesChannel` connection; the `StreamBuilder` widget executes the `builder` function instructions when receiving a `new message` on the WebSocket.
+
+It prints on the screen the notes contained in the WebSocket message.
+
+```dart
+StreamBuilder(
+  stream: notesChannel.stream,
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final message = jsonDecode(snapshot.data);
+    return Expanded(
+      flex: 5,
+      child: Html(data: message["data"]),
+    );
+  },
+)
+```
+
 ## Execution Tutorial
 
-This tutorial shows how to locally deploy and run the plugin.
+This tutorial shows how to locally deploy and run the project.
 
 - **[Prerequisites](#prerequisites)**
 - **[Repository](#repository)**
