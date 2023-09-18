@@ -2,16 +2,17 @@
 
 ## Introduction
 
-Blind people are unable to concurrently "read and play" the score but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on smartwatches using the vibration functionality.
+Blind people are unable to concurrently "read and play" the score but they have incredible tactile and auditory abilities, this project focuses on playing the time beats and the notes on smartphones using the vibration functionality.
 
 `Notes Sound Generator` is a [MuseScore 3.x](https://musescore.org) plugin for blind people; it is capable of reading the current score (which can be edited with [MuseScore](https://musescore.org) itself) and extracting, at playing time, the notes and the time signature of the score.
 
-My solution uses the MuseScore plugin development stack, and the [Alphatab](https://alphatab.net/) JS library to extract the notes and the time signature from a score.
-The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able, exploiting the low-level APIs of the library, to play the score and vibrate on smartwatches the time beats and the currently played notes.
+My solution uses the MuseScore plugin development stack, the [Alphatab](https://alphatab.net/) JS library to extract the notes and the time signature from a score, and the JavaScript [WebSocket](https://it.javascript.info/websocket) protocol to send data to mobile devices.
+
+The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able, exploiting the low-level APIs of the library, to play the score and vibrate on smartphones the time beats and the currently played notes.
 
 ## Implementation details
 
-In the implementation, the `playing of the time beats` is communicated by descriptive text and a point; they are colored in red for the first beat of a bar, and in green for the other beats.
+In the implementation, the `playing of the time beats` is communicated by descriptive text, points and a smartwatch vibration; text and points are colored in red for the first beat of a bar, and in green for the other beats.
 
 <img src="assets/beat-description.png" alt="Beat description" style="max-height: 120px;">
 <img src="assets/beat-point-red.png" alt="Beat description" style="max-width: 60px;">
@@ -50,8 +51,11 @@ onRun: {
 #### Library initialization
 
 The library is initialized by setting the `master volume` to zero in order to avoid the sound playing of the score, and the `file` parameter is set to the URL param of the page if it is specified. This parameter will be set from the [MuseScore](https://musescore.org) plugin with the filename of the file exported from itself.
+Two websockets are opened in order to send the beat and notes infos to the mobile devices.
 
 ```js
+var timeWebSocket = new WebSocket("ws://localhost:8080/time");
+var notesWebSocket = new WebSocket("ws://localhost:8080/notes");
 const urlParams = new URLSearchParams(window.location.search);
 const urlFileName = urlParams.get("filename");
 const settings = {
@@ -126,7 +130,7 @@ function createMetronome(score) {
 
 This event is fired every time the user clicks on the `play` or `pause` buttons.
 
-When the `play` is fired, a new `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) is started which is responsible for sending the `beat` to be played and waiting for the `pause` time indicated in the `timeSignaturePauses` array. The playing of a beat is fired through the `metronomeWorker.onmessage` callback and the `timeSignaturePauses` array is sent to the [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) via the `metronomeWorker.postMessage` function.
+When the `play` is fired, a new `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) is started which is responsible for sending the `beat` to be played and waiting for the `pause` time indicated in the `timeSignaturePauses` array. The playing of a beat is fired through the `metronomeWorker.onmessage` callback and the `timeSignaturePauses` array is sent to the [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) via the `metronomeWorker.postMessage` function. When the playing of a beat is fired, a message via the WebSocket is sent to the mobile devices.
 
 When the `pause` is fired, the previously `metronomeWorker` [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) started, is terminated.
 
@@ -140,7 +144,12 @@ playPause.onclick = (e) => {
     api.tickPosition = api.score.masterBars[currentBarIndex].start;
     metronomeWorker = new Worker("/js/metronomeWorker.js");
     beatLogger.innerHTML = "";
+    metronomeWorker.postMessage({
+      startIndex: currentBarIndex,
+      pauses: timeSignaturePauses,
+    });
     metronomeWorker.onmessage = function (message) {
+      if (timeWebSocket.readyState != 1) return;
       if (message.data.isFirstBeat) {
         beatLogger.innerHTML = '<p style="color: green;">BEAT</p>';
         highlightBeat("green");
@@ -148,12 +157,11 @@ playPause.onclick = (e) => {
         beatLogger.innerHTML += '<p style="color: red;">BEAT</p>';
         highlightBeat("red");
       }
+      timeWebSocket.send(
+        JSON.stringify({ isFirstBeat: message.data.isFirstBeat })
+      );
       beatLogger.scrollTo(0, beatLogger.scrollHeight);
     };
-    metronomeWorker.postMessage({
-      startIndex: currentBarIndex,
-      pauses: timeSignaturePauses,
-    });
     api.playPause();
   } else if (e.target.classList.contains("fa-pause")) {
     api.playPause();
@@ -189,7 +197,7 @@ Every time that the worker is launched, it iterates over the `timeSignaturePause
 
 #### The `activeBeatsChanged` event
 
-This event is fired every time a note (or a group of notes) in the score is played. When it's fired, the DOM element `noteLogger` content is replaced with the description of the current notes played; the notes are extracted from the `activeBeats` variable in the `args` parameter.
+This event is fired every time a note (or a group of notes) in the score is played. When it's fired, a message via the WebSocket is sent to the mobile devices, and the DOM element `noteLogger` content is replaced with the description of the current notes played; the notes are extracted from the `activeBeats` variable in the `args` parameter.
 
 ```js
 const noteLogger = document.getElementById("note-logger");
@@ -203,11 +211,59 @@ api.activeBeatsChanged.on((args) => {
     let i = 0;
     for (i = 0; i < noteValues.length; i++) {
       noteLogger.innerHTML +=
-        "<p>Note " + noteValues[i] + " (" + duration + ")</p>";
+        '<p style="text-align: center;">Note ' +
+        noteValues[i] +
+        " (" +
+        duration +
+        ")</p>";
     }
     noteLogger.scrollTo(0, noteLogger.scrollHeight);
   }
+  if (notesWebSocket.readyState != 1) return;
+  notesWebSocket.send(JSON.stringify({ data: noteLogger.innerHTML }));
 });
+```
+
+### WebSocket side
+
+#### The `onOpen` function
+
+```php
+public function onOpen(ConnectionInterface $conn)
+{
+    $request = $conn->httpRequest;
+    if ($request->getUri()->getPath() === '/time') {
+        $this->timeClients->attach($conn);
+        echo "New connection to time channel: {$conn->resourceId}\n";
+    }
+    if ($request->getUri()->getPath() === '/notes') {
+        $this->notesClients->attach($conn);
+        echo "New connection to notes channel: {$conn->resourceId}\n";
+    }
+}
+```
+
+#### The `onMessage` function
+
+```php
+public function onMessage(ConnectionInterface $from, $msg)
+{
+    $request = $from->httpRequest;
+    if ($request->getUri()->getPath() === '/time') {
+        foreach ($this->timeClients as $client) {
+            if ($from !== $client) {
+                $client->send($msg);
+            }
+        }
+    }
+    if ($request->getUri()->getPath() === '/notes') {
+        foreach ($this->notesClients as $client) {
+            if ($from !== $client) {
+                $client->send($msg);
+            }
+        }
+    }
+}
 ```
 
 ## Execution Tutorial
@@ -224,7 +280,8 @@ This tutorial shows how to locally deploy and run the plugin.
 
 - [MuseScore 3](https://musescore.org/download#older-versions)
 - [Docker and Docker Compose](https://www.docker.com) (Application containers engine)
-- The port 8000 free on your local machine
+- [Flutter Framework SDK](https://docs.flutter.dev/get-started/install)
+- The ports `8000` and `8080` free on your local machine
 
 ### Repository
 
@@ -237,11 +294,21 @@ $ git clone https://github.com/IvanBuccella/notes-sound-generator
 
 ### Build
 
-Build the local environment with Docker:
+- Build the Docker environment:
 
 ```sh
 $ cd notes-sound-generator
 $ docker-compose build
+```
+
+- Replace the web socket URL with your local machine IP address in the file `src/mobile_app/lib/main.dart`.
+
+- Build the Android or iOS App with Flutter:
+
+```sh
+$ cd src/mobile_app
+$ flutter build apk
+$ flutter build ipa
 ```
 
 ### Run on MacOS
@@ -250,6 +317,8 @@ $ docker-compose build
 $ chmod +x run.sh
 $ ./run.sh
 ```
+
+- And then, launch the App on your mobile device
 
 ### Run on other platforms
 
@@ -261,7 +330,8 @@ In order to execute the plugin you need to do the following steps in order:
 $ docker-compose up -d
 ```
 
-- And then, launch the [MuseScore](https://musescore.org) program
+- Launch the [MuseScore](https://musescore.org) program
+- And then, launch the App on your mobile device
 
 ## Contributing
 
