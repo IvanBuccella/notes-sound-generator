@@ -357,7 +357,9 @@ This tutorial shows how to locally deploy and run the project.
 
 - [MuseScore 3](https://musescore.org/download#older-versions)
 - [Docker and Docker Compose](https://www.docker.com) (Application containers engine)
-- [Flutter Framework SDK](https://docs.flutter.dev/get-started/install)
+- [Flutter Version Management](https://fvm.app/)
+- [Android Studio](https://developer.android.com/studio) for building the Android App
+- [XCode](https://developer.apple.com/xcode/) for building the iOS App
 - The ports `8000` and `8080` free on your local machine
 
 ### Repository
@@ -365,7 +367,7 @@ This tutorial shows how to locally deploy and run the project.
 Clone the repository into the `Plugins` folder of [MuseScore 3](https://musescore.org):
 
 ```sh
-$ cd PathToYourMuseScore3Folder/Plugins
+$ cd ~/Documents/Musescore 3/Plugins
 $ git clone https://github.com/IvanBuccella/notes-sound-generator
 ```
 
@@ -380,12 +382,29 @@ $ docker-compose build
 
 - Replace the web socket URL with your local machine IP address in the file `src/mobile_app/lib/main.dart`.
 
-- Build the Android or iOS App with Flutter:
+- Set the required Flutter version and install the dependencies:
 
 ```sh
-$ cd src/mobile_app
-$ flutter build apk
-$ flutter build ipa
+$ cd notes-sound-generator/src/mobile_app
+$ fvm install 3.7.2
+$ fvm use 3.7.2
+$ fvm flutter pub get
+```
+
+- Build the Android App with Flutter:
+
+```sh
+$ cd notes-sound-generator/src/mobile_app
+$ fvm flutter build apk
+```
+
+The output is located at the path `notes-sound-generator/src/mobile_app/build/app/outputs/flutter-apk/app-release.apk`.
+
+- Build the iOS App with Flutter:
+
+```sh
+$ cd notes-sound-generator/src/mobile_app
+$ fvm flutter build ipa
 ```
 
 ### Run on MacOS
@@ -404,6 +423,7 @@ In order to execute the plugin you need to do the following steps in order:
 - Run the docker container:
 
 ```sh
+$ cd notes-sound-generator
 $ docker-compose up -d
 ```
 
