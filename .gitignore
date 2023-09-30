@@ -1,5 +1,7 @@
 .DS_Store
 .env
-new-exported.xml
+new-exported.musicxml
 .vscode
 vendor
+flutter_sdk
+pubspec.lock

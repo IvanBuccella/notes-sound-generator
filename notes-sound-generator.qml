@@ -17,7 +17,7 @@ MuseScore {
 
     function openGenerator(filePath, filename) {
         var newFilePath = filePath + "/src/webpage/" + filename;
-        if (!writeScore(curScore, newFilePath, "xml")) {
+        if (!writeScore(curScore, newFilePath, "musicxml")) {
             alert.text = "Cannot export the current score, try again.";
             alert.open();
             return;
@@ -27,7 +27,7 @@ MuseScore {
     }
 
     onRun: {
-        var filename = "new-exported.xml";
+        var filename = "new-exported.musicxml";
         openGenerator(filePath, filename);
     }
 }
