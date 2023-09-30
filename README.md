@@ -380,7 +380,7 @@ $ cd notes-sound-generator
 $ docker-compose build
 ```
 
-- Replace the web socket URL with your local machine IP address in the file `src/mobile_app/lib/main.dart`.
+- Replace the web socket URL with your local machine IP address in the file `notes-sound-generator/src/mobile_app/lib/main.dart`.
 
 - Set the required Flutter version and install the dependencies:
 
