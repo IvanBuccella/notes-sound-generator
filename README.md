@@ -32,7 +32,7 @@ When the plugin is run, it `saves` the current `score` in a MusicXML file named 
 
 ```js
 function openGenerator(filePath, filename) {
-  var newFilePath = filePath + "/src/" + filename;
+  var newFilePath = filePath + "/src/webpage/" + filename;
   if (!writeScore(curScore, newFilePath, "musicxml")) {
     alert.text = "Cannot export the current score, try again.";
     alert.open();
