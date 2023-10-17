@@ -26,12 +26,12 @@ The `current played notes` are communicated by descriptive text which indicates 
 
 A `partial` portion of the `plugin` code is shown below; it emphasizes its behavior.
 
-When the plugin is run, it `saves` the current `score` in a MusicXML file named `'new-exported.xml'` in the `same folder` of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance, and then opens a new `web browser page` with the URL of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance by specifying the parameter `filename`.
+When the plugin is run, it `saves` the current `score` in a MusicXML file named `'new-exported.musicxml'` in the `same folder` of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance, and then opens a new `web browser page` with the URL of the [AlphaTab](https://github.com/CoderLine/alphaTab) instance by specifying the parameter `filename`.
 
 ```js
 function openGenerator(filePath, filename) {
   var newFilePath = filePath + "/src/" + filename;
-  if (!writeScore(curScore, newFilePath, "xml")) {
+  if (!writeScore(curScore, newFilePath, "musicxml")) {
     alert.text = "Cannot export the current score, try again.";
     alert.open();
     return;
@@ -41,7 +41,7 @@ function openGenerator(filePath, filename) {
 }
 
 onRun: {
-  var filename = "new-exported.xml";
+  var filename = "new-exported.musicxml";
   openGenerator(filePath, filename);
 }
 ```
@@ -59,7 +59,7 @@ var notesWebSocket = new WebSocket("ws://localhost:8080/notes");
 const urlParams = new URLSearchParams(window.location.search);
 const urlFileName = urlParams.get("filename");
 const settings = {
-  file: urlFileName ?? "/file.xml",
+  file: urlFileName ?? "/file.musicxml",
   player: {
     enablePlayer: true,
     enableCursor: true,
