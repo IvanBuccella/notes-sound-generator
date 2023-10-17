@@ -10,6 +10,8 @@ My solution uses the MuseScore plugin development stack, the [Alphatab](https://
 
 The score is a MusicXML file generated from the developed [MuseScore](https://musescore.org) plugin; this plugin executes the job of exporting the current score (eventually edited with the program itself) in MusicXML format and then passing it to a webpage where an instance of [Alphatab](https://alphatab.net/) is executed. The webpage is able, exploiting the low-level APIs of the library, to play the score and vibrate on mobile devices the time beats and the currently played notes.
 
+<img src="assets/project-architecture.jpg" alt="Project Architecture" style="max-height: 300px;">
+
 ## Implementation details
 
 In the implementation, the `playing of the time beats` is communicated by descriptive text, points and a smartwatch vibration; text and points are colored in red for the first beat of a bar, and in green for the other beats.
