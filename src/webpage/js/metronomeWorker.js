@@ -5,6 +5,7 @@
   }
 
   self.onmessage = function (message) {
+    if (message.data.pauses === undefined) return;
     let timeSignaturePauses = message.data.pauses;
     let startIndex = message.data.startIndex;
     for (let index = startIndex; index < timeSignaturePauses.length; index++) {
